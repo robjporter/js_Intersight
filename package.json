@@ -1,15 +1,13 @@
 {
-  "name": "intersight",
+  "name": "@ignw/intersight",
   "version": "0.0.1",
-  "description": "OpenAPI client for Intersight",
-  "author": "OpenAPI-Generator Contributors",
+  "description": "OpenAPI client for Cisco Intersight",
+  "author": "IGNW",
   "keywords": [
-    "fetch",
     "typescript",
-    "openapi-client",
-    "openapi-generator"
+    "ignw",
+    "intersight"
   ],
-  "license": "Unlicense",
   "main": "./dist/index.js",
   "typings": "./dist/index.d.ts",
   "scripts": {
