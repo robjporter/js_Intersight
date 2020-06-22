@@ -4,7 +4,7 @@ This project uses OpenAPI generator to generate a TypeScript/JavaScript client f
 
 ### Building
 
-To build and compile the typescript sources to javascript use:
+To transpile the typescript sources to javascript use:
 
 ```
 npm install
@@ -17,7 +17,7 @@ First build the package then run `npm publish`
 
 ### Consuming
 
-navigate to the folder of your consuming project and run one of the following commands.
+Navigate to the folder of your consuming project and run one of the following commands.
 
 _using the package published on npm:_
 
@@ -27,8 +27,14 @@ npm i @ignw/intersight
 
 _using the unpublished package from your filesystem (not recommended):_
 
+- CD into this project's root folder
+- Run `npm i`
+- Run `npm build`.
+
+After running those commands you should have a dist folder that contains the transpiled code. CD back into the root folder of the consuming project and run
+
 ```
-npm i /path/to/this/repo
+npm i /path/to/this/repo's/root/folder
 ```
 
 ### Contributing
