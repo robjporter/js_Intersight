@@ -22,7 +22,7 @@ navigate to the folder of your consuming project and run one of the following co
 _using the package published on npm:_
 
 ```
-npm i @ignw/intersight-sdk
+npm i @ignw/intersight
 ```
 
 _using the unpublished package (not recommended):_
@@ -33,4 +33,4 @@ npm i .
 
 ### Contributing
 
-To update the sdk, replace the intersight-openapi-xxx.json doc with the latest version from Intersight. Run NPM run build to transpile the typescript files and update the dist folder. Finally, publish the package `npm publish`
+To update the sdk, replace the intersight-openapi-xxx.json doc with the latest version from Intersight. Run NPM run build to transpile the typescript files and update the dist folder. Finally, publish the package with `npm publish`.
