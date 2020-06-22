@@ -25,10 +25,10 @@ _using the package published on npm:_
 npm i @ignw/intersight
 ```
 
-_using the unpublished package (not recommended):_
+_using the unpublished package from your filesystem (not recommended):_
 
 ```
-npm i .
+npm i /path/to/this/repo
 ```
 
 ### Contributing
