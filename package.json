@@ -1,8 +1,12 @@
 {
   "name": "@ignw/intersight",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Typescript / Javascript SDK for Cisco Intersight",
   "author": "IGNW",
+  "repository": {
+    "type": "git",
+    "url": "https://gitlab.com/ignw1/oss/Intersight_NPM_SDK"
+  },
   "keywords": [
     "typescript",
     "ignw",
