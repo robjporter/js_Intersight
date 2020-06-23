@@ -1,7 +1,7 @@
 {
   "name": "@ignw/intersight",
-  "version": "0.0.1",
-  "description": "OpenAPI client for Cisco Intersight",
+  "version": "0.0.2",
+  "description": "Typescript / Javascript SDK for Cisco Intersight",
   "author": "IGNW",
   "keywords": [
     "typescript",
