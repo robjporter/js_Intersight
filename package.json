@@ -1,6 +1,6 @@
 {
   "name": "@ignw/intersight",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Typescript / Javascript SDK for Cisco Intersight",
   "author": "IGNW",
   "repository": {

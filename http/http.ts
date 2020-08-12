@@ -1,41 +1,68 @@
 // TODO: evaluate if we can easily get rid of this library
 import * as FormData from "form-data";
 // typings of url-parse are incorrect...
-// @ts-ignore 
+// @ts-ignore
 import * as URLParse from "url-parse";
-import { Observable, from } from '../rxjsStub';
+import { Observable, from } from "../rxjsStub";
 
-export * from './isomorphic-fetch';
+export * from "./isomorphic-fetch";
 
 /**
  * Represents an HTTP method.
  */
 export enum HttpMethod {
-    GET = "GET",
-    HEAD = "HEAD",
-    POST = "POST",
-    PUT = "PUT",
-    DELETE = "DELETE",
-    CONNECT = "CONNECT",
-    OPTIONS = "OPTIONS",
-    TRACE = "TRACE",
-    PATCH = "PATCH"
+  GET = "GET",
+  HEAD = "HEAD",
+  POST = "POST",
+  PUT = "PUT",
+  DELETE = "DELETE",
+  CONNECT = "CONNECT",
+  OPTIONS = "OPTIONS",
+  TRACE = "TRACE",
+  PATCH = "PATCH",
 }
 
 /**
  * Represents an HTTP file which will be transferred from or to a server.
  */
 export type HttpFile = {
-    data: Buffer,
-    name: string
+  data: Buffer;
+  name: string;
 };
 
-
 export class HttpException extends Error {
-    public constructor(msg: string) {
-        super(msg);
-    }
+  public constructor(msg: string) {
+    super(msg);
+  }
 }
+
+const stringifyQuery = (query: object): string => {
+  let queryString = "";
+  Object.entries(query).forEach(([key, value], index) => {
+    if (index > 0) {
+      queryString += "&";
+    }
+    // Append each URL encoded parameter to the targetUrl unencode
+    // 24 $ Dollar Sign
+    // 28 ( Left Parenthesis
+    // 29 ) Right Parenthesis
+    // 2B + Plus Sign
+    // 2C , Comma
+    // 2F / Forward Slash
+    // 3A : Colon
+    // 3D = Equals Sign
+    // 40 @ At Sign
+
+    queryString +=
+      key +
+      "=" +
+      encodeURIComponent(value)
+        .replace(/['()=]/g, escape)
+        .replace(/%(?:24|28|29|2B|2C|2F|3A|3D|40)/g, unescape);
+  });
+  queryString = queryString.replace("%25", "%");
+  return queryString;
+};
 
 /**
  * Represents the body of an outgoing HTTP request.
@@ -46,170 +73,179 @@ export type RequestBody = undefined | string | FormData;
  * Represents an HTTP request context
  */
 export class RequestContext {
-    private headers: { [key: string]: string } = {};
-    private body: RequestBody = undefined;
-    private url: URLParse;
+  private headers: { [key: string]: string } = {};
+  private body: RequestBody = undefined;
+  private url: URLParse;
 
-	/**
-	 * Creates the request context using a http method and request resource url
-	 *
-	 * @param url url of the requested resource
-	 * @param httpMethod http method
-	 */
-    public constructor(url: string, private httpMethod: HttpMethod) {
-        this.url = URLParse(url, true);
-    }
-    
-    /*
-     * Returns the url set in the constructor including the query string
-     *
-     */
-    public getUrl(): string {
-    	return this.url.toString();
-    }
-    
-    /**
-     * Replaces the url set in the constructor with this url.
-     *
-     */
-    public setUrl(url: string) {
-    	this.url = URLParse(url, true);
-    }
+  /**
+   * Creates the request context using a http method and request resource url
+   *
+   * @param url url of the requested resource
+   * @param httpMethod http method
+   */
+  public constructor(url: string, private httpMethod: HttpMethod) {
+    this.url = URLParse(url, true);
+  }
 
-    /**
-     * Sets the body of the http request either as a string or FormData
-     *
-     * Note that setting a body on a HTTP GET, HEAD, DELETE, CONNECT or TRACE
-     * request is discouraged.
-     * https://httpwg.org/http-core/draft-ietf-httpbis-semantics-latest.html#rfc.section.7.3.1
-     *
-     * @param body the body of the request
-     */
-    public setBody(body: RequestBody) {
-        this.body = body;
-    }
+  /*
+   * Returns the url set in the constructor including the query string
+   *
+   */
+  public getUrl(): string {
+    return this.url.toString(stringifyQuery);
+  }
 
-    public getHost(): string {
-        return this.url.host;
-    }
+  /**
+   * Replaces the url set in the constructor with this url.
+   *
+   */
+  public setUrl(url: string) {
+    this.url = URLParse(url, true);
+  }
 
-    public getPath(): string {
-        const parts = this.url.toString().split(this.url.host)
-        return parts.length > 1 ? parts.slice(-1) : ''
-    }
+  /**
+   * Sets the body of the http request either as a string or FormData
+   *
+   * Note that setting a body on a HTTP GET, HEAD, DELETE, CONNECT or TRACE
+   * request is discouraged.
+   * https://httpwg.org/http-core/draft-ietf-httpbis-semantics-latest.html#rfc.section.7.3.1
+   *
+   * @param body the body of the request
+   */
+  public setBody(body: RequestBody) {
+    this.body = body;
+  }
 
-    public getHttpMethod(): HttpMethod {
-    	return this.httpMethod;
-    }
-    
-    public getHeaders(): { [key: string]: string } {
-    	return this.headers;
-    }
+  public getHost(): string {
+    return this.url.host;
+  }
 
-    public getBody(): RequestBody {
-        return this.body;
-    }
+  public getPath(): string {
+    const parts = this.url.toString(stringifyQuery).split(this.url.host);
+    return parts.length > 1 ? parts.slice(-1) : "";
+  }
 
-	public setQueryParam(name: string, value: string) {
-        let queryObj = this.url.query;
-        queryObj[name] = value;
-        this.url.set("query", queryObj);
-    }
+  public getHttpMethod(): HttpMethod {
+    return this.httpMethod;
+  }
 
-	/**
-	 *	Sets a cookie with the name and value. NO check  for duplicate cookies is performed
-	 *
-	 */
-    public addCookie(name: string, value: string): void {
-        if (!this.headers["Cookie"]) {
-            this.headers["Cookie"] = "";
-        }
-        this.headers["Cookie"] += name + "=" + value + "; ";
-    }
+  public getHeaders(): { [key: string]: string } {
+    return this.headers;
+  }
 
-    public setHeaderParam(key: string, value: string): void  { 
-        this.headers[key] = value;
+  public getBody(): RequestBody {
+    return this.body;
+  }
+
+  /**
+   * Returns the query object
+   */
+  getQuery(key = ""): string | { [key: string]: string } {
+    return key ? this.url.query[key] : this.url.query;
+  }
+
+  public setQueryParam(name: string, value: string) {
+    let queryObj = this.url.query;
+    queryObj[name] = value;
+    this.url.set("query", queryObj);
+  }
+
+  /**
+   *	Sets a cookie with the name and value. NO check  for duplicate cookies is performed
+   *
+   */
+  public addCookie(name: string, value: string): void {
+    if (!this.headers["Cookie"]) {
+      this.headers["Cookie"] = "";
     }
+    this.headers["Cookie"] += name + "=" + value + "; ";
+  }
+
+  public setHeaderParam(key: string, value: string): void {
+    this.headers[key] = value;
+  }
 }
 
 export interface ResponseBody {
-    text(): Promise<string>;
-    binary(): Promise<Buffer>;
+  text(): Promise<string>;
+  binary(): Promise<Buffer>;
 }
-
 
 /**
  * Helper class to generate a `ResponseBody` from binary data
  */
 export class SelfDecodingBody implements ResponseBody {
-    constructor(private dataSource: Promise<Buffer>) {}
+  constructor(private dataSource: Promise<Buffer>) {}
 
-    binary(): Promise<Buffer> {
-        return this.dataSource;
-    }
+  binary(): Promise<Buffer> {
+    return this.dataSource;
+  }
 
-    async text(): Promise<string> {
-        const data: Buffer = await this.dataSource;
-        return data.toString();
-    }
+  async text(): Promise<string> {
+    const data: Buffer = await this.dataSource;
+    return data.toString();
+  }
 }
 
 export class ResponseContext {
-    public constructor(
-        public httpStatusCode: number,
-        public headers: { [key: string]: string },
-        public body: ResponseBody
-    ) {}
+  public constructor(
+    public httpStatusCode: number,
+    public headers: { [key: string]: string },
+    public body: ResponseBody
+  ) {}
 
-    /**
-     * Parse header value in the form `value; param1="value1"`
-     *
-     * E.g. for Content-Type or Content-Disposition
-     * Parameter names are converted to lower case
-     * The first parameter is returned with the key `""`
-     */
-    public getParsedHeader(headerName: string): { [parameter: string]: string } {
-        const result: { [parameter: string]: string } = {};
-        if (!this.headers[headerName]) {
-            return result;
-        }
-
-        const parameters = this.headers[headerName].split(";");
-        for (const parameter of parameters) {
-            let [key, value] = parameter.split("=", 2);
-            key = key.toLowerCase().trim();
-            if (value === undefined) {
-                result[""] = key;
-            } else {
-                value = value.trim();
-                if (value.startsWith('"') && value.endsWith('"')) {
-                    value = value.substring(1, value.length - 1);
-                }
-                result[key] = value;
-            }
-        }
-        return result;
+  /**
+   * Parse header value in the form `value; param1="value1"`
+   *
+   * E.g. for Content-Type or Content-Disposition
+   * Parameter names are converted to lower case
+   * The first parameter is returned with the key `""`
+   */
+  public getParsedHeader(headerName: string): { [parameter: string]: string } {
+    const result: { [parameter: string]: string } = {};
+    if (!this.headers[headerName]) {
+      return result;
     }
 
-    public async getBodyAsFile(): Promise<HttpFile> {
-        const data = await this.body.binary();
-        const fileName = this.getParsedHeader("content-disposition")["filename"] || "";
-        return { data, name: fileName };
+    const parameters = this.headers[headerName].split(";");
+    for (const parameter of parameters) {
+      let [key, value] = parameter.split("=", 2);
+      key = key.toLowerCase().trim();
+      if (value === undefined) {
+        result[""] = key;
+      } else {
+        value = value.trim();
+        if (value.startsWith('"') && value.endsWith('"')) {
+          value = value.substring(1, value.length - 1);
+        }
+        result[key] = value;
+      }
     }
+    return result;
+  }
+
+  public async getBodyAsFile(): Promise<HttpFile> {
+    const data = await this.body.binary();
+    const fileName =
+      this.getParsedHeader("content-disposition")["filename"] || "";
+    return { data, name: fileName };
+  }
 }
 
 export interface HttpLibrary {
-    send(request: RequestContext): Observable<ResponseContext>;
+  send(request: RequestContext): Observable<ResponseContext>;
 }
 
 export interface PromiseHttpLibrary {
-    send(request: RequestContext): Promise<ResponseContext>;
+  send(request: RequestContext): Promise<ResponseContext>;
 }
 
-export function wrapHttpLibrary(promiseHttpLibrary: PromiseHttpLibrary): HttpLibrary {
+export function wrapHttpLibrary(
+  promiseHttpLibrary: PromiseHttpLibrary
+): HttpLibrary {
   return {
     send(request: RequestContext): Observable<ResponseContext> {
       return from(promiseHttpLibrary.send(request));
-    }
-  }
+    },
+  };
 }
